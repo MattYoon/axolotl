@@ -1,0 +1,61 @@
+base_model: yanolja/KoSOLAR-10.7B-v0.2
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+is_llama_derived_model: true
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+seed: 42
+
+datasets:
+  - path: ../data/orca-wiki-alpaca-lima-aya-elo.json
+    type: sharegpt
+dataset_prepared_path:
+val_set_size: 0
+output_dir: ../checkpoints/orca-wiki-alpaca-lima-aya-elo
+chat_template: chatml
+
+sequence_len: 2048
+sample_packing: true
+pad_to_sequence_len: true
+
+wandb_project: weather_chat
+wandb_entity: lklab_kaist
+wandb_watch:
+wandb_name: yanolja-orca-wiki-alpaca-lima-aya-elo
+wandb_log_model:
+
+gradient_accumulation_steps: 1
+micro_batch_size: 1
+num_epochs: 3
+optimizer: adamw_torch_fused
+lr_scheduler: cosine
+learning_rate: 0.00002
+
+train_on_inputs: false
+group_by_length: false
+bf16: auto
+fp16:
+tf32: true
+
+gradient_checkpointing: true
+early_stopping_patience:
+resume_from_checkpoint:
+local_rank:
+logging_steps: 1
+xformers_attention:
+flash_attention: true
+
+warmup_ratio: 0.01
+saves_per_epoch: 5
+debug:
+deepspeed:
+weight_decay: 0.0
+fsdp:
+fsdp_config:
+special_tokens:
+  bos_token: "<s>"
+  eos_token: "<|im_end|>"
+  pad_token: "</s>"
+  unk_token: "<unk>"

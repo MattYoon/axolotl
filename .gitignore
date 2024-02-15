@@ -1,3 +1,8 @@
+data
+checkpoints
+weather/last_run_prepared
+weather/wandb
+weather/flagged
 **/axolotl.egg-info
 configs
 last_run_prepared/
