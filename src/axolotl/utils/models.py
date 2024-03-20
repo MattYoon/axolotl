@@ -429,7 +429,7 @@ def load_model(
         and cfg.flash_attention
         and cfg.sample_packing
     ):
-        patch_for_multipack(cfg.model_config_type)
+        patch_for_multipack(cfg.model_config_type, model_name=cfg.base_model)
     elif cfg.is_llama_derived_model:
         # Modify all llama derived models in one block
 
@@ -888,7 +888,9 @@ def load_model(
 
     if cfg.adapter in ["lora", "qlora"]:
         if cfg.gradient_checkpointing:
-            model.gradient_checkpointing_enable()
+            model.gradient_checkpointing_enable(
+                gradient_checkpointing_kwargs=cfg.gradient_checkpointing_kwargs
+            )
         if (
             cfg.load_in_8bit or cfg.load_in_4bit
         ) and not skip_prepare_model_for_kbit_training:

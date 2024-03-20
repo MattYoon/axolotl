@@ -96,6 +96,8 @@ class SFTDataset(BaseModel):
     field_human: Optional[str] = None
     field_model: Optional[str] = None
 
+    roles: Optional[Dict[str, List[str]]] = None
+
 
 class UserDefinedDPOType(BaseModel):
     """User defined typing for DPO"""
@@ -124,13 +126,16 @@ class RLType(str, Enum):
     dpo = "dpo"  # pylint: disable=invalid-name
     ipo = "ipo"  # pylint: disable=invalid-name
     kto_pair = "kto_pair"  # pylint: disable=invalid-name
+    orpo = "orpo"  # pylint: disable=invalid-name
 
 
 class ChatTemplate(str, Enum):
     """Chat templates configuration subset"""
 
+    alpaca = "alpaca"  # pylint: disable=invalid-name
     chatml = "chatml"  # pylint: disable=invalid-name
     inst = "inst"  # pylint: disable=invalid-name
+    gemma = "gemma"  # pylint: disable=invalid-name
 
 
 class LoftQConfig(BaseModel):
@@ -308,6 +313,15 @@ class HyperparametersConfig(BaseModel):
     learning_rate: Union[str, float]
     weight_decay: Optional[float] = None
     optimizer: Optional[Union[OptimizerNames, Literal["lion_pytorch"]]] = None
+    optim_args: Optional[Union[str, Dict[str, Any]]] = Field(
+        default=None, metadata={"help": "Optional arguments to supply to optimizer."}
+    )
+    optim_target_modules: Optional[Union[List[str], Literal["all_linear"]]] = Field(
+        default=None,
+        metadata={
+            "help": "The target modules to optimize, i.e. the module names that you would like to train."
+        },
+    )
     torchdistx_path: Optional[str] = None
     lr_scheduler: Optional[SchedulerType] = None
     lr_scheduler_kwargs: Optional[Dict[str, Any]] = None
@@ -413,6 +427,7 @@ class AxolotlInputConfig(
 
     datasets: Optional[conlist(Union[SFTDataset, DPODataset], min_length=1)] = None  # type: ignore
     test_datasets: Optional[conlist(Union[SFTDataset, DPODataset], min_length=1)] = None  # type: ignore
+    shuffle_merged_datasets: Optional[bool] = True
     dataset_prepared_path: Optional[str] = None
     dataset_shard_num: Optional[int] = None
     dataset_shard_idx: Optional[int] = None
@@ -428,6 +443,8 @@ class AxolotlInputConfig(
     dataloader_num_workers: Optional[int] = None
     dataloader_prefetch_factor: Optional[int] = None
     dataloader_drop_last: Optional[bool] = None
+
+    remove_unused_columns: Optional[bool] = None
 
     push_dataset_to_hub: Optional[str] = None
     hf_use_auth_token: Optional[bool] = None
@@ -513,12 +530,14 @@ class AxolotlInputConfig(
 
     neftune_noise_alpha: Optional[float] = None
 
+    orpo_alpha: Optional[float] = None
+
     max_memory: Optional[
         Dict[Union[int, Literal["cpu", "disk"]], Union[int, str]]
     ] = None
     gpu_memory_limit: Optional[Union[int, str]] = None
 
-    chat_template: Optional[Union[Literal["chatml", "inst"], ChatTemplate]] = None
+    chat_template: Optional[ChatTemplate] = None
     default_system_message: Optional[str] = None
 
     # INTERNALS - document for now, generally not set externally
